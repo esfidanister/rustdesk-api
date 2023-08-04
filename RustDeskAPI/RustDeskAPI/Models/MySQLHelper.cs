@@ -56,6 +56,10 @@ namespace RustDeskAPI.Models
             {
                 using (MySqlConnection conn = new MySqlConnection(connstr))
                 {
+                    if (conn.State !=ConnectionState.Closed)
+                    {
+                        conn.Close();
+                    }
                     conn.Open();
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
@@ -63,7 +67,8 @@ namespace RustDeskAPI.Models
                     }
                 }
             }
-            catch { return result; }
+            catch(Exception ex)
+            { return result; }
         }
 
     }

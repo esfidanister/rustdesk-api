@@ -112,8 +112,8 @@ namespace RustDeskAPI.Controllers
                 {
                     //rustdesk_peers peer = JsonConvert.DeserializeObject<rustdesk_peers>(v);
                     sql = string.Format("INSERT INTO `rustdesk_v2`.`rustdesk_peers` (`uid`, `client_id`, `username`, `hostname`, `alias`, `platform`, `tags`,`forceAlwaysRelay`,`rdpPort`,`rdpUsername`) "
-                        + "VALUES ('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}')", uid, peer.client_id, peer.username, peer.hostname, peer.alias, peer.platform,
-                        peer.tags, peer.forceAlwaysRelay, peer.rdpPort, peer.rdpUsername);
+                        + "VALUES ('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}')", uid, peer.id, peer.username, peer.hostname, peer.alias, peer.platform,
+                        JsonConvert.SerializeObject(peer.tags), peer.forceAlwaysRelay, peer.rdpPort, peer.rdpUsername);
                     MySQLHelper.Execute(sql);
                 }
                 return "{\"code\":100,\"data\": \"成功\"}";
@@ -134,7 +134,20 @@ namespace RustDeskAPI.Controllers
 
                 sql = string.Format("SELECT * FROM `rustdesk_peers` where uid='{0}'", tk.uid);
                 dt = MySQLHelper.QueryDataTable(sql);
-                var peers = JsonConvert.DeserializeObject<List<rustdesk_peers>>(JsonConvert.SerializeObject(dt));
+                var peers = dt.AsEnumerable().Select(o=>new
+                {
+                    id=o.Field<int>("id"),
+                    uid = o.Field<int>("uid"),
+                    client_id = o.Field<string>("client_id"),
+                    username = o.Field<string>("username"),
+                    hostname = o.Field<string>("hostname"),
+                    alias = o.Field<string>("alias"),
+                    platform = o.Field<string>("platform"),
+                    tags = JsonConvert.DeserializeObject<List<string>>(o.Field<string>("tags")),
+                    forceAlwaysRelay = o.Field<string>("forceAlwaysRelay"),
+                    rdpPort = o.Field<string>("rdpPort"),
+                    rdpUsername = o.Field<string>("rdpUsername"),
+                }).ToList();
                 var result = new
                 {
                     data = new
