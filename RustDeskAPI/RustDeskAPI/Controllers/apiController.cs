@@ -136,9 +136,6 @@ namespace RustDeskAPI.Controllers
                 dt = MySQLHelper.QueryDataTable(sql);
                 var peers = dt.AsEnumerable().Select(o => new
                 {
-                    id = o.Field<int>("id"),
-                    uid = o.Field<int>("uid"),
-                    client_id = o.Field<string>("client_id"),
                     username = o.Field<string>("username"),
                     hostname = o.Field<string>("hostname"),
                     alias = o.Field<string>("alias"),
@@ -150,12 +147,14 @@ namespace RustDeskAPI.Controllers
                 }).ToList();
                 var result = new
                 {
-                    data = new
+                    data = JsonConvert.SerializeObject(new
                     {
                         tags,
                         peers
-                    }
+                    })
                 };
+                var retstr = JsonConvert.SerializeObject(result);
+                return retstr;
             }
             return "";
         }
